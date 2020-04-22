@@ -1,0 +1,44 @@
+<launch>
+  <!-- Default parameters -->
+  <arg name="port"                        default="/dev/ttyUSB0" />
+  <arg name="baud"                        default="460800" />
+  <arg name="frame_id"                    default="gps" />
+  <arg name="use_GNSS_time"               default="False" />
+  <arg name="time_ref_source"             default="gps" />
+  <arg name="useRMC"                      default="False" />
+
+  <!-- Logging -->
+  <arg name="logging"                     default="False" />
+
+  <!-- Processing parameters -->
+  <arg name="chunk_size"                  default="1024" />
+  <arg name="driver_rate"                 default="100" />
+
+  <!-- Heading settings -->
+  <arg name="heading_offset"              default="0.0" />
+  <arg name="heading_enu_frame"           default="True" />
+  <arg name="apply_urdf_heading_offset"   default="False" />
+  <arg name="heading_urdf_source_frame"   default="gnss_position_link" />
+  <arg name="heading_urdf_target_frame"   default="gnss_vector_link" />
+
+  <!-- U-blox specific settings -->
+  <arg name="use_ublox_messages"          default="True" />
+
+  <node name="nmea_serial_driver_node" pkg="nmea_navsat_driver" type="nmea_serial_driver" output="screen">
+    <param name="port"                        value="$(arg port)"/>
+    <param name="baud"                        value="$(arg baud)" />
+    <param name="frame_id"                    value="$(arg frame_id)" />
+    <param name="use_GNSS_time"               value="$(arg use_GNSS_time)" />
+    <param name="time_ref_source"             value="$(arg time_ref_source)" />
+    <param name="useRMC"                      value="$(arg useRMC)" />
+    <param name="logging"                     value="$(arg logging)" />
+    <param name="chunk_size"                  value="$(arg chunk_size)" />
+    <param name="driver_rate"                 value="$(arg driver_rate)" />
+    <param name="heading_offset"              value="$(arg heading_offset)" />
+    <param name="heading_enu_frame"           value="$(arg heading_enu_frame)" />
+    <param name="apply_urdf_heading_offset"   value="$(arg apply_urdf_heading_offset)" />
+    <param name="heading_urdf_source_frame"   value="$(arg heading_urdf_source_frame)" />
+    <param name="heading_urdf_target_frame"   value="$(arg heading_urdf_target_frame)" />
+    <param name="use_ublox_messages"          value="$(arg use_ublox_messages)" />
+  </node>
+</launch>

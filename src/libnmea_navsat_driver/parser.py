@@ -1,6 +1,7 @@
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2013, Eric Perko
+# Copyright (c) 2015-2020, Robert Bosch GmbH
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,12 +33,11 @@
 
 """Parsing functions for NMEA sentence strings."""
 
-import re
-import datetime
 import calendar
-import math
+import datetime
 import logging
-
+import math
+import re
 
 logger = logging.getLogger('rosout')
 
@@ -48,7 +48,7 @@ def safe_float(field):
     Args:
         field: The field (usually a str) to convert to float.
 
-    Returns:
+    Return:
         The float value represented by field or NaN if float conversion throws a ValueError.
     """
     try:
@@ -63,7 +63,7 @@ def safe_int(field):
     Args:
         field: The field (usually a str) to convert to int.
 
-    Returns:
+    Return:
         The int value represented by field or 0 if int conversion throws a ValueError.
     """
     try:
@@ -79,7 +79,7 @@ def convert_latitude(field):
         field (str): Latitude string, expected to be formatted as DDMM.MMM, where
             DD is the latitude degrees, and MM.MMM are the minutes latitude.
 
-    Returns:
+    Return:
         Floating point latitude in decimal degrees.
     """
     return safe_float(field[0:2]) + safe_float(field[2:]) / 60.0
@@ -92,7 +92,7 @@ def convert_longitude(field):
         field (str): Longitude string, expected to be formatted as DDDMM.MMM, where
             DDD is the longitude degrees, and MM.MMM are the minutes longitude.
 
-    Returns:
+    Return:
         Floating point latitude in decimal degrees.
     """
     return safe_float(field[0:3]) + safe_float(field[3:]) / 60.0
@@ -112,7 +112,7 @@ def convert_time(nmea_utc):
             HH is the number of hours [0,24), MM is the number of minutes [0,60),
             and SS.SS is the number of seconds [0,60) of the time in UTC.
 
-    Returns:
+    Return:
         tuple(int, int): 2-tuple of (unix seconds, nanoseconds) if the sentence contains valid time.
         tuple(float, float): 2-tuple of (NaN, NaN) if the sentence does not contain valid time.
     """
@@ -145,7 +145,7 @@ def convert_time_rmc(date_str, time_str):
             HH is the number of hours [0,24), MM is the number of minutes [0,60),
             and SS.SS is the number of seconds [0,60) of the time in UTC.
 
-    Returns:
+    Return:
         tuple(int, int): 2-tuple of (unix seconds, nanoseconds) if the sentence contains valid time.
         tuple(float, float): 2-tuple of (NaN, NaN) if the sentence does not contain valid time.
     """
@@ -183,7 +183,7 @@ def convert_status_flag(status_flag):
     Args:
         status_flag (str): NMEA status flag, which should be "A" or "V"
 
-    Returns:
+    Return:
         True if the status_flag is "A" for Active.
     """
     if status_flag == "A":
@@ -200,7 +200,7 @@ def convert_knots_to_mps(knots):
     Args:
         knots (float, int, or str): Speed in knots.
 
-    Returns:
+    Return:
         The value of safe_float(knots) converted from knots to meters/second.
     """
     return safe_float(knots) * 0.514444444444
@@ -214,12 +214,16 @@ def convert_deg_to_rads(degs):
     Args:
         degs (float, int, or str): Angle in degrees
 
-    Returns:
+    Return:
         The value of safe_float(degs) converted from degrees to radians.
     """
     return math.radians(safe_float(degs))
 
 
+"""A dictionary that maps from sentence identifier string (e.g. "GGA") to a list of tuples.
+Each tuple is a three-tuple of (str: field name, callable: conversion function, int: field index).
+The parser splits the sentence into comma-delimited fields. The string value of each field is passed
+to the appropriate conversion function based on the field index."""
 parse_maps = {
     "GGA": [
         ("fix_type", int, 6),
@@ -232,6 +236,7 @@ parse_maps = {
         ("hdop", safe_float, 8),
         ("num_satellites", safe_int, 7),
         ("utc_time", convert_time, 1),
+        ("age_dgps", safe_float, 13),
     ],
     "RMC": [
         ("fix_valid", convert_status_flag, 2),
@@ -258,12 +263,31 @@ parse_maps = {
     "VTG": [
         ("true_course", safe_float, 1),
         ("speed", convert_knots_to_mps, 5)
+    ],
+    "PTNL,VHD": [
+        ("utc_time", convert_time, 2),
+        ("date", int, 3),
+        ("azimuth", safe_float, 4),
+        ("azimuth_rate", safe_float, 5),
+        ("vertical_angle", safe_float, 6),
+        ("vertical_angle_rate", safe_float, 7),
+        ("range", safe_float, 8),
+        ("range_rate", safe_float, 9),
+        ("fix_type", int, 10),
+        ("num_satellites", safe_int, 11),
+        ("pdop", safe_float, 12)
+    ],
+    "PTNL,AVR": [
+        ("utc_time", convert_time, 2),
+        ("yaw", convert_deg_to_rads, 3),
+        ("tilt", convert_deg_to_rads, 5),
+        ("roll", convert_deg_to_rads, 7),
+        ("range", safe_float, 9),
+        ("fix_type", safe_int, 10),
+        ("pdop", safe_float, 11),
+        ("num_satellites", safe_int, 12)
     ]
 }
-"""A dictionary that maps from sentence identifier string (e.g. "GGA") to a list of tuples.
-Each tuple is a three-tuple of (str: field name, callable: conversion function, int: field index).
-The parser splits the sentence into comma-delimited fields. The string value of each field is passed
-to the appropriate conversion function based on the field index."""
 
 
 def parse_nmea_sentence(nmea_sentence):
@@ -272,14 +296,13 @@ def parse_nmea_sentence(nmea_sentence):
     Args:
         nmea_sentence (str): A single NMEA sentence of one of the types in parse_maps.
 
-    Returns:
+    Return:
         A dict mapping string field names to values for each field in the NMEA sentence or
         False if the sentence could not be parsed.
     """
     # Check for a valid nmea sentence
-
     if not re.match(
-            r'(^\$GP|^\$GN|^\$GL|^\$IN).*\*[0-9A-Fa-f]{2}$', nmea_sentence):
+            r'^\$(GP|GN|GL|GB|IN|PTNL).*\*[0-9A-Fa-f]{2}$', nmea_sentence):
         logger.debug(
             "Regex didn't match, sentence not valid NMEA? Sentence was: %s" %
             repr(nmea_sentence))
@@ -287,7 +310,11 @@ def parse_nmea_sentence(nmea_sentence):
     fields = [field.strip(',') for field in nmea_sentence.split(',')]
 
     # Ignore the $ and talker ID portions (e.g. GP)
-    sentence_type = fields[0][3:]
+    # PTNL is used for Trimble proprietary NMEA messages, their description takes two fields - such as $PTNL,VHD
+    if fields[0][1:] != "PTNL":
+        sentence_type = fields[0][3:]
+    else:
+        sentence_type = fields[0][1:] + "," + fields[1]
 
     if sentence_type not in parse_maps:
         logger.debug("Sentence type %s not in parse map, ignoring."

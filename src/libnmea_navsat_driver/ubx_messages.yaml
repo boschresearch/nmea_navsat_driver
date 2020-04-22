@@ -1,0 +1,83 @@
+# Source: https://www.u-blox.com/sites/default/files/u-blox_ZED-F9P_InterfaceDescription_%28UBX-18010854%29.pdf
+263:
+  name: UBX-NAV-PVT
+  class: 1
+  id: 7
+  minlength: 92
+  maxlength: 92
+  format: <IHBBBBBBIiBBBBiiiiIIiiiiiIIHxxxxxxihH
+  entries:
+    - iTOW
+    - year
+    - month
+    - day
+    - hour
+    - min
+    - sec
+    - valid
+    - tAcc
+    - nano
+    - fixType
+    - flags
+    - flags2
+    - numSV
+    - lon
+    - lat
+    - height
+    - hMSL
+    - hAcc
+    - vAcc
+    - velN
+    - velE
+    - velD
+    - gSpeed
+    - headMot
+    - sAcc
+    - headAcc
+    - pDOP
+    - headVeh
+    - magDec
+    - magAcc
+313:
+  name: UBX-NAV-GEOFENCE
+  class: 1
+  id: 57
+  minlength: 8
+  maxlength: 16
+  # if there is a repeated block only the format of the fixed block
+  format: <IxBBB
+  # repeated blocks are always to the end of a message
+  repeated-block-counter: numFences
+  repeated-block-length: 2
+  repeated-block-format: <Bx
+  repeated-block-name: state
+  # entries of the fixed block
+  entries:
+  - iTOW
+  - status
+  - numFences
+  - combState
+316:
+  name: UBX-NAV-RELPOSNED
+  class: 1
+  id: 60
+  minlength: 64
+  maxlength: 64
+  format: <xxxxIiiiiixxxxbbbbIIIIIxxxxI
+  entries:
+  - iTOW
+  - relPosN
+  - relPosE
+  - relPosD
+  - relPosLength
+  - relPosHeading
+  - relPosHPN
+  - relPosHPE
+  - relPosHPD
+  - relPosHPLength
+  - accN
+  - accE
+  - accD
+  - accLength
+  - accHeading
+  - flags
