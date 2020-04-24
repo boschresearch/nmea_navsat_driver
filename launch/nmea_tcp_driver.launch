@@ -1,0 +1,16 @@
+<launch>
+  <!-- IP is used as fallback if the hostname can't be resolved -->
+  <arg name="ip"                    default="192.168.88.206" />
+  <arg name="hostname"              default="" />
+  <arg name="port"                  default="5017" />
+  <arg name="frame_id"              default="gps" />
+  <arg name="chunk_size"            default="1024" />
+
+  <node name="nmea_tcp_driver" pkg="nmea_navsat_driver" type="nmea_tcp_driver" output="screen" respawn="false">
+    <param name="ip"                    value="$(arg ip)" />
+    <param name="hostname"              value="$(arg hostname)" />
+    <param name="port"                  value="$(arg port)" />
+    <param name="frame_id"              value="$(arg frame_id)" />
+    <param name="chunk_size"            value="$(arg chunk_size)" />
+  </node>
+</launch>

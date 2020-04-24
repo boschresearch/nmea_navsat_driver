@@ -4,24 +4,29 @@
   <version>0.5.0</version>
   <description>
     Package to parse NMEA strings and publish a very simple GPS message. Does not
-    require or use the GPSD deamon.
+    require or use the GPSD deamon. Also supports proprietary messages of several
+    GNSS vendors and parses u-blox binary UBX messages within the NMEA stream.
   </description>
 
   <maintainer email="evenator@gmail.com">Ed Venator</maintainer>
 
-  <license>BSD</license>
+  <license>BSD 3-Clause</license>
 
   <url type="website">http://ros.org/wiki/nmea_navsat_driver</url>
 
   <author email="eric@ericperko.com">Eric Perko</author>
   <author>Steven Martin</author>
+  <author>Gabriel Gaessler</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>std_msgs</build_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>python-serial</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nmea_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
   <test_depend>roslint</test_depend>
   <!-- The export tag contains other, unspecified, tags -->

@@ -1,0 +1,38 @@
+<launch>
+  <!-- Default parameters. IP is used as fallback if the hostname can't be resolved -->
+  <arg name="hostname"              default="" />
+  <arg name="ip"                    default="192.168.88.206" />
+  <arg name="port"                  default="5017" />
+  <arg name="frame_id"              default="gps" />
+  <arg name="use_GNSS_time"         default="False" />
+  <arg name="time_ref_source"       default="gps" />
+  <arg name="useRMC"                default="False" />
+
+  <!-- Logging -->
+  <arg name="logging"               default="False" />
+
+  <!-- Processing parameters -->
+  <arg name="chunk_size"            default="1024" />
+
+  <!-- Heading settings -->
+  <arg name="heading_offset"        default="0.0" />
+  <arg name="heading_enu_frame"     default="True" />
+
+  <!-- Trimble specific settings -->
+  <arg name="use_trimble_messages"  default="True" />
+
+  <node name="nmea_tcp_driver" pkg="nmea_navsat_driver" type="nmea_tcp_driver" output="screen" respawn="false">
+    <param name="hostname"              value="$(arg hostname)" />
+    <param name="ip"                    value="$(arg ip)" />
+    <param name="port"                  value="$(arg port)" />
+    <param name="frame_id"              value="$(arg frame_id)" />
+    <param name="use_GNSS_time"         value="$(arg use_GNSS_time)" />
+    <param name="time_ref_source"       value="$(arg time_ref_source)" />
+    <param name="useRMC"                value="$(arg useRMC)" />
+    <param name="logging"               value="$(arg logging)" />
+    <param name="chunk_size"            value="$(arg chunk_size)" />
+    <param name="heading_offset"        value="$(arg heading_offset)" />
+    <param name="heading_enu_frame"     value="$(arg heading_enu_frame)" />
+    <param name="use_trimble_messages"  value="$(arg use_trimble_messages)" />
+  </node>
+</launch>
