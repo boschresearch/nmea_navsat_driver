@@ -549,8 +549,7 @@ class RosNMEADriver(object):
 
             # report erroneous messages
             if msg.carr_soln != 0:
-                if msg.rel_pos_heading_valid == 0 \
-                  or msg.ref_obs_miss == 1 \
+                if msg.ref_obs_miss == 1 \
                   or msg.ref_pos_miss == 1 \
                   or msg.rel_pos_valid == 0 \
                   or msg.gnss_fix_ok == 0:
