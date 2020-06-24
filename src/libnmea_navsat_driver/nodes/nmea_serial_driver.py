@@ -121,16 +121,25 @@ def main():
 
     Creates a ROS NMEA Driver and feeds it NMEA sentence strings from a serial device.
 
-    ROS parameters:
-        ~port (str): Path of the serial device to open.
-        ~baud (int): Baud rate to configure the serial device.
-        ~logging (bool): Activates logging of raw data.
-        ~logging_path (str): Logging path.
-        ~playback (bool): Activates playback of raw data instead of reading from device.
-        ~playback_path (str): Playback path.
-        ~playback_rate (int): Playback rate for each chunk in Hz. Overwrites driver rate in case of playback.
-        ~chunk_size (int): Maximum size in bytes to be read at once, reads that much or until buffer is empty.
-        ~driver_rate (int): Rate of the driver im Hz. Low rates reduce system load. Too low rates might lead to a growing queue of unprocessed data.
+    :ROS Parameters:
+        - ~port (str)
+            Path of the serial device to open.
+        - ~baud (int)
+            Baud rate to configure the serial device.
+        - ~logging (bool)
+            Activates logging of raw data.
+        - ~logging_path (str)
+            Logging path.
+        - ~playback (bool)
+            Activates playback of raw data instead of reading from device.
+        - ~playback_path (str)
+            Playback path.
+        - ~playback_rate (int)
+            Playback rate for each chunk in Hz. Overwrites driver rate in case of playback.
+        - ~chunk_size (int)
+            Maximum size in bytes to be read at once, reads that much or until buffer is empty.
+        - ~driver_rate (int)
+            Rate of the driver im Hz. Low rates reduce system load. Too low rates might lead to a growing queue of unprocessed data.
     """
     rospy.init_node('nmea_serial_driver')
 
@@ -159,7 +168,7 @@ def main():
 
     try:
         if not playback:
-            GPS = serial.Serial(port=serial_port, baudrate=serial_baud, timeout=0, rtscts=1)
+            GPS = serial.Serial(port=serial_port, baudrate=serial_baud, timeout=2, rtscts=1)
         else:
             GPS = open(playback_path, "r")
 
@@ -195,12 +204,3 @@ def main():
     except serial.SerialException as ex:
         rospy.logfatal(
             "Could not open serial port: I/O error({0}): {1}".format(ex.errno, ex.strerror))
-    finally:
-        rospy.loginfo("Closing serial connection")
-        try:
-            GPS.close()
-        except NameError:
-            pass
-
-        if logging:
-            log.close()

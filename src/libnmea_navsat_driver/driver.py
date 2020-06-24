@@ -57,30 +57,37 @@ class RosNMEADriver(object):
     def __init__(self):
         """Initialize the ROS NMEA driver.
 
-        Creates the following ROS publishers:
-            NavSatFix publisher on the 'fix' channel.
-            TwistStamped publisher on the 'vel' channel.
-            NavSatInfo publisher on the 'info' channel.
-            QuaternionStamped publisher on the 'heading' channel.
-            TimeReference publisher on the 'time_reference' channel.
-            NavSatUbloxRelPos publisher on the 'ublox_relpos' channel.
-            Odometry publisher on the 'ublox_relpos_odom' channel.
-            Imu publisher on the 'ublox_relpos_imu' channel.
-            NavSatUbloxGeoFence publisher on the 'ublox_geofence' channel.
-            NavSatUbloxPositionVelocityTime publisher on the 'ublox_position_velocity_time' channel.
-            NavSatTrimbleHeading publisher on the 'trimble_heading' channel.
-            Imu publisher on the 'trimble_moving_base_imu' channel.
-            NavSatTrimbleMovingBase publisher on the 'trimble_moving_base' channel.
+        :ROS Publishers:
+            - NavSatFix publisher on the 'fix' channel.
+            - TwistStamped publisher on the 'vel' channel.
+            - QuaternionStamped publisher on the 'heading' channel.
+            - TimeReference publisher on the 'time_reference' channel.
+            - NavSatUbloxRelPos publisher on the 'ublox_relpos' channel.
+            - Odometry publisher on the 'ublox_relpos_odom' channel.
+            - Imu publisher on the 'ublox_relpos_imu' channel.
+            - NavSatUbloxGeoFence publisher on the 'ublox_geofence' channel.
+            - NavSatUbloxPositionVelocityTime publisher on the 'ublox_position_velocity_time' channel.
+            - NavSatTrimbleHeading publisher on the 'trimble_heading' channel.
+            - Imu publisher on the 'trimble_moving_base_imu' channel.
+            - NavSatTrimbleMovingBase publisher on the 'trimble_moving_base' channel.
 
-        Reads the following ROS parameters:
-            ~time_ref_source (str): The name of the source in published TimeReference messages. (default None)
-            ~useRMC (bool): If true, use RMC NMEA messages. If false, use GGA and VTG messages. (default False)
-            ~epe_quality0 (float): Value to use for default EPE quality for fix type 0. (default 1000000)
-            ~epe_quality1 (float): Value to use for default EPE quality for fix type 1. (default 4.0)
-            ~epe_quality2 (float): Value to use for default EPE quality for fix type 2. (default (0.1)
-            ~epe_quality4 (float): Value to use for default EPE quality for fix type 4. (default 0.02)
-            ~epe_quality5 (float): Value to use for default EPE quality for fix type 5. (default 4.0)
-            ~epe_quality9 (float): Value to use for default EPE quality for fix type 9. (default 3.0)
+        :ROS Parameters:
+            - ~time_ref_source (str)
+                The name of the source in published TimeReference messages. (default None)
+            - ~useRMC (bool)
+                If true, use RMC NMEA messages. If false, use GGA and VTG messages. (default False)
+            - ~epe_quality0 (float)
+                Value to use for default EPE quality for fix type 0. (default 1000000)
+            - ~epe_quality1 (float)
+                Value to use for default EPE quality for fix type 1. (default 4.0)
+            - ~epe_quality2 (float)
+                Value to use for default EPE quality for fix type 2. (default (0.1)
+            - ~epe_quality4 (float)
+                Value to use for default EPE quality for fix type 4. (default 0.02)
+            - ~epe_quality5 (float)
+                Value to use for default EPE quality for fix type 5. (default 1.0)
+            - ~epe_quality9 (float)
+                Value to use for default EPE quality for fix type 9. (default 3.0)
         """
         self.fix_pub = rospy.Publisher('fix', NavSatFix, queue_size=1)
         self.vel_pub = rospy.Publisher('vel', TwistStamped, queue_size=1)
