@@ -108,9 +108,9 @@ def convert_time(nmea_utc):
     more than 12 hours ahead of the NMEA time.
 
     Args:
-        nmea_utc (str): NMEA UTC time string to convert. The expected format is HHMMSS.SS where
+        nmea_utc (str): NMEA UTC time string to convert. The expected format is HHMMSS[.SS] where
             HH is the number of hours [0,24), MM is the number of minutes [0,60),
-            and SS.SS is the number of seconds [0,60) of the time in UTC.
+            and SS[.SS] is the number of seconds [0,60) of the time in UTC.
 
     Return:
         tuple(int, int): 2-tuple of (unix seconds, nanoseconds) if the sentence contains valid time.
@@ -125,7 +125,9 @@ def convert_time(nmea_utc):
     hours = int(nmea_utc[0:2])
     minutes = int(nmea_utc[2:4])
     seconds = int(nmea_utc[4:6])
-    nanosecs = int(nmea_utc[7:]) * pow(10, 9 - len(nmea_utc[7:]))
+    nanosecs = 0
+    if len(nmea_utc) > 7:
+        nanosecs = int(nmea_utc[7:]) * pow(10, 9 - len(nmea_utc[7:]))
 
     # Resolve the ambiguity of day
     day_offset = int((utc_time.hour - hours)/12.0)
@@ -264,8 +266,28 @@ parse_maps = {
         ("true_course", safe_float, 1),
         ("speed", convert_knots_to_mps, 5)
     ],
-    "PTNL,VHD": [
+    "PUBX,00": [
         ("utc_time", convert_time, 2),
+        ("latitude", convert_latitude, 3),
+        ("latitude_direction", str, 4),
+        ("longitude", convert_longitude, 5),
+        ("longitude_direction", str, 6),
+        ("altitude", safe_float, 7),
+        ("nav_stat", str, 8),
+        ("h_acc", safe_float, 9),
+        ("v_acc", safe_float, 10),
+        ("sog", safe_float, 11),
+        ("cog", safe_float, 12),
+        ("v_vel", safe_float, 13),
+        ("diff_age", safe_float, 14),
+        ("hdop", safe_float, 15),
+        ("vdop", safe_float, 16),
+        ("tdop", safe_float, 17),
+        ("num_svs", int, 18),
+        ("dr", int, 20)
+    ],
+    "PTNL,VHD": [
+        ("utc_time", safe_float, 2),
         ("date", int, 3),
         ("azimuth", safe_float, 4),
         ("azimuth_rate", safe_float, 5),
@@ -302,16 +324,17 @@ def parse_nmea_sentence(nmea_sentence):
     """
     # Check for a valid nmea sentence
     if not re.match(
-            r'^\$(GP|GN|GL|GB|IN|PTNL).*\*[0-9A-Fa-f]{2}$', nmea_sentence):
+            r'^\$(GP|GN|GL|GB|IN|PTNL|PUBX).*\*[0-9A-Fa-f]{2}$', nmea_sentence):
         logger.debug(
             "Regex didn't match, sentence not valid NMEA? Sentence was: %s" %
             repr(nmea_sentence))
         return False
-    fields = [field.strip(',') for field in nmea_sentence.split(',')]
+    fields = [field.strip(',') for field in nmea_sentence[:-3].split(',')]
 
     # Ignore the $ and talker ID portions (e.g. GP)
     # PTNL is used for Trimble proprietary NMEA messages, their description takes two fields - such as $PTNL,VHD
-    if fields[0][1:] != "PTNL":
+    # The same holds for u-blox with PUBX-Messages
+    if fields[0][1:] not in ["PTNL", "PUBX"]:
         sentence_type = fields[0][3:]
     else:
         sentence_type = fields[0][1:] + "," + fields[1]

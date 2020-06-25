@@ -45,7 +45,8 @@ from nmea_navsat_driver.msg import (NavSatInfo, NavSatTrimbleHeading,
                                     NavSatTrimbleMovingBase,
                                     NavSatUbloxGeoFence,
                                     NavSatUbloxPositionVelocityTime,
-                                    NavSatUbloxRelPos)
+                                    NavSatUbloxRelPos,
+                                    NavSatUbloxPubxPosition)
 from sensor_msgs.msg import Imu, NavSatFix, NavSatStatus, TimeReference
 from tf.transformations import quaternion_from_euler
 from tf import TransformListener
@@ -67,6 +68,7 @@ class RosNMEADriver(object):
             - Imu publisher on the 'ublox_relpos_imu' channel.
             - NavSatUbloxGeoFence publisher on the 'ublox_geofence' channel.
             - NavSatUbloxPositionVelocityTime publisher on the 'ublox_position_velocity_time' channel.
+            - NavSatUbloxPubxPosition publisher on the 'ublox_pubx_position' channel.
             - NavSatTrimbleHeading publisher on the 'trimble_heading' channel.
             - Imu publisher on the 'trimble_moving_base_imu' channel.
             - NavSatTrimbleMovingBase publisher on the 'trimble_moving_base' channel.
@@ -150,6 +152,7 @@ class RosNMEADriver(object):
             self.ublox_relpos_imu_pub = rospy.Publisher('ublox_relpos_imu', Imu, queue_size=1)
             self.ublox_geofence_pub = rospy.Publisher('ublox_geofence', NavSatUbloxGeoFence, queue_size=1)
             self.ublox_position_velocity_time_pub = rospy.Publisher('ublox_position_velocity_time', NavSatUbloxPositionVelocityTime, queue_size=1)
+            self.ublox_pubx_position_pub = rospy.Publisher('ublox_pubx_position', NavSatUbloxPubxPosition, queue_size=1)
 
         # Trimble messages
         if self.use_trimble_messages:
@@ -505,6 +508,37 @@ class RosNMEADriver(object):
 
         # Documentation source: https://www.u-blox.com/sites/default/files/u-blox_ZED-F9P_InterfaceDescription_%28UBX-18010854%29.pdf
         # Some comments have been directly copied from the documentation
+        elif self.use_ublox_messages and 'PUBX,00' in parsed_sentence:
+            data = parsed_sentence['PUBX,00']
+            msg = NavSatUbloxPubxPosition()
+            msg.header.stamp = current_time
+            msg.header.frame_id = frame_id
+
+            msg.utc_time = rospy.Time(data['utc_time'][0], data['utc_time'][1])
+            msg.latitude = data['latitude']
+            if data['latitude_direction'] == 'S':
+                msg.latitude = -msg.latitude
+            msg.longitude = data['longitude']
+            if data['longitude_direction'] == 'W':
+                msg.longitude = -msg.longitude
+            msg.altitude = data['altitude']
+            msg.nav_stat = data['nav_stat']
+            msg.h_acc = data['h_acc']
+            msg.v_acc = data['v_acc']
+            msg.sog = data['sog'] / 3.6
+            msg.cog = data['cog'] / 180.0 * math.pi
+            msg.v_vel = data['v_vel']
+            msg.diff_age = data['diff_age']
+            msg.hdop = data['hdop']
+            msg.vdop = data['vdop']
+            msg.tdop = data['tdop']
+            msg.num_svs = data['num_svs']
+            msg.dr = data['dr']
+
+            self.ublox_pubx_position_pub.publish(msg)
+
+        # Documentation source: https://www.u-blox.com/sites/default/files/u-blox_ZED-F9P_InterfaceDescription_%28UBX-18010854%29.pdf
+        # Some comments have been directly copied from the documentation
         elif self.use_ublox_messages and 'UBX-NAV-RELPOSNED' in parsed_sentence:
             data = parsed_sentence['UBX-NAV-RELPOSNED']
             msg = NavSatUbloxRelPos()
@@ -565,8 +599,8 @@ class RosNMEADriver(object):
 
             # publish odometry and IMU messages for fusion in case message is fine
             if msg.carr_soln == 0:
-                if msg.gnss_fix_ok == 1:
-                    rospy.logwarn("Unable to calculate RTK solution.")
+                if msg.diff_soln == 1:
+                    rospy.logwarn_throttle(10, "Unable to calculate RTK solution.")
 
                 return False
 

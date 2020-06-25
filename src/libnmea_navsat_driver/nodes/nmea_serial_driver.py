@@ -52,7 +52,7 @@ def extract_sentences(line, message_definitions, driver, frame_id):
     Loops over the given data until it can't extract a valid sentence anymore, then returns the rest.
     """
     # restricting NMEA mesages to printable asccii characters, so numbers 32 (space) to 126 (tilde)
-    nmea_pattern = re.compile(r'\$(GP|GN|GL|GB|IN|PTNL)[ -~]+\*[A-F0-9]{2}')
+    nmea_pattern = re.compile(r'\$(GP|GN|GL|GB|IN|PTNL|PUBX)[ -~]+\*[A-F0-9]{2}')
     # identifier for binary u-blox messages
     ub = struct.pack('<BB', 181, 98)
     line_old = ""

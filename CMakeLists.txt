@@ -14,6 +14,7 @@ add_message_files(
   NavSatUbloxGeoFence.msg
   NavSatUbloxPositionVelocityTime.msg
   NavSatUbloxRelPos.msg
+  NavSatUbloxPubxPosition.msg
   NavSatTrimbleHeading.msg
   NavSatTrimbleMovingBase.msg
 )
