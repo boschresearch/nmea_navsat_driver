@@ -474,6 +474,13 @@ class RosNMEADriver(object):
 
             self.trimble_moving_base_pub.publish(msg)
 
+            # An dual antenna system can only measure tow out of the
+            # three angles tilt, roll, yaw. Yaw is always measured.
+            # Assuming all not measured angles are zero.
+            if math.isnan(msg.tilt):
+                msg.tilt = 0.
+            if math.isnan(msg.roll):
+                msg.roll = 0.
             msg2 = Imu()
             msg2.header.stamp = current_time
             msg2.header.frame_id = frame_id
