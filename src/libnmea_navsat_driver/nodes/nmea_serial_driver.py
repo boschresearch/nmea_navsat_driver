@@ -168,7 +168,7 @@ def main():
 
     try:
         if not playback:
-            GPS = serial.Serial(port=serial_port, baudrate=serial_baud, timeout=2, rtscts=1)
+            GPS = serial.Serial(port=serial_port, baudrate=serial_baud, timeout=0, rtscts=1)
         else:
             GPS = open(playback_path, "r")
 
