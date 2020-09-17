@@ -91,16 +91,16 @@ class RosNMEADriver(object):
             - ~epe_quality9 (float)
                 Value to use for default EPE quality for fix type 9. (default 3.0)
         """
-        self.fix_pub = rospy.Publisher('fix', NavSatFix, queue_size=1)
-        self.vel_pub = rospy.Publisher('vel', TwistStamped, queue_size=1)
-        self.info_pub = rospy.Publisher('info', NavSatInfo, queue_size=1)
-        self.heading_pub = rospy.Publisher('heading', QuaternionStamped, queue_size=1)
+        self.fix_pub = rospy.Publisher('fix', NavSatFix, queue_size=10)
+        self.vel_pub = rospy.Publisher('vel', TwistStamped, queue_size=10)
+        self.info_pub = rospy.Publisher('info', NavSatInfo, queue_size=10)
+        self.heading_pub = rospy.Publisher('heading', QuaternionStamped, queue_size=10)
         self.use_GNSS_time = rospy.get_param('~use_GNSS_time', False)
         self.use_ublox_messages = rospy.get_param('~use_ublox_messages', False)
         self.use_trimble_messages = rospy.get_param('~use_trimble_messages', False)
         if not self.use_GNSS_time:
             self.time_ref_pub = rospy.Publisher(
-                'time_reference', TimeReference, queue_size=1)
+                'time_reference', TimeReference, queue_size=10)
 
         # heading corrections, applied to the following messages
         # * PNTL,AVR
@@ -147,18 +147,18 @@ class RosNMEADriver(object):
 
         # u-blox messages
         if self.use_ublox_messages:
-            self.ublox_relpos_pub = rospy.Publisher('ublox_relpos', NavSatUbloxRelPos, queue_size=1)
-            self.ublox_relpos_odom_pub = rospy.Publisher('ublox_relpos_odom', Odometry, queue_size=1)
-            self.ublox_relpos_imu_pub = rospy.Publisher('ublox_relpos_imu', Imu, queue_size=1)
-            self.ublox_geofence_pub = rospy.Publisher('ublox_geofence', NavSatUbloxGeoFence, queue_size=1)
-            self.ublox_position_velocity_time_pub = rospy.Publisher('ublox_position_velocity_time', NavSatUbloxPositionVelocityTime, queue_size=1)
-            self.ublox_pubx_position_pub = rospy.Publisher('ublox_pubx_position', NavSatUbloxPubxPosition, queue_size=1)
+            self.ublox_relpos_pub = rospy.Publisher('ublox_relpos', NavSatUbloxRelPos, queue_size=10)
+            self.ublox_relpos_odom_pub = rospy.Publisher('ublox_relpos_odom', Odometry, queue_size=10)
+            self.ublox_relpos_imu_pub = rospy.Publisher('ublox_relpos_imu', Imu, queue_size=10)
+            self.ublox_geofence_pub = rospy.Publisher('ublox_geofence', NavSatUbloxGeoFence, queue_size=10)
+            self.ublox_position_velocity_time_pub = rospy.Publisher('ublox_position_velocity_time', NavSatUbloxPositionVelocityTime, queue_size=10)
+            self.ublox_pubx_position_pub = rospy.Publisher('ublox_pubx_position', NavSatUbloxPubxPosition, queue_size=10)
 
         # Trimble messages
         if self.use_trimble_messages:
-            self.trimble_heading_pub = rospy.Publisher('trimble_heading', NavSatTrimbleHeading, queue_size=1)
-            self.trimble_moving_base_pub = rospy.Publisher('trimble_moving_base', NavSatTrimbleMovingBase, queue_size=1)
-            self.trimble_moving_base_imu_pub = rospy.Publisher('trimble_moving_base_imu', Imu, queue_size=1)
+            self.trimble_heading_pub = rospy.Publisher('trimble_heading', NavSatTrimbleHeading, queue_size=10)
+            self.trimble_moving_base_pub = rospy.Publisher('trimble_moving_base', NavSatTrimbleMovingBase, queue_size=10)
+            self.trimble_moving_base_imu_pub = rospy.Publisher('trimble_moving_base_imu', Imu, queue_size=10)
 
         self.time_ref_source = rospy.get_param('~time_ref_source', None)
         self.use_RMC = rospy.get_param('~useRMC', False)

@@ -8,7 +8,6 @@
   <!-- Logging and playback -->
   <arg name="playback"                    default="True" />
   <arg name="playback_path"               default="" />
-  <arg name="playback_rate"               default="1" />
 
   <!-- Processing parameters -->
   <arg name="chunk_size"                  default="1024" />

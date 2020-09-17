@@ -134,8 +134,6 @@ def main():
             Activates playback of raw data instead of reading from device.
         - ~playback_path (str)
             Playback path.
-        - ~playback_rate (int)
-            Playback rate for each chunk in Hz. Overwrites driver rate in case of playback.
         - ~chunk_size (int)
             Maximum size in bytes to be read at once, reads that much or until buffer is empty.
         - ~driver_rate (int)
@@ -150,7 +148,6 @@ def main():
     logging_path = rospy.get_param('~logging_path', '/tmp/gnss_log_' + frame_id + '_' + str(strftime('%Y-%m-%d_%H-%M-%S')) + '.log')
     playback = rospy.get_param('~playback', False)
     playback_path = rospy.get_param('~playback_path', '')
-    playback_rate = rospy.get_param('~playback_rate', 20)
     chunk_size = rospy.get_param('~chunk_size', 1024)
     driver_rate = rospy.get_param('~driver_rate', 100)
 
@@ -175,20 +172,23 @@ def main():
         try:
             driver = RosNMEADriver()
             cache = ""
+            startup_delay_expired = False
             while not rospy.is_shutdown():
                 data = GPS.read(chunk_size)
 
                 if playback:
+                    # Publishing data before subscribers have a chance to connect leads to non-reproducible behavior. Therefore wait for a second after creating the publishers.
+                    if startup_delay_expired is False:
+                        rospy.sleep(1)
+                        startup_delay_expired = True
                     if data == '':
                         rospy.loginfo("End of file reached, shutting down nmea_navsat_driver.")
                         rospy.signal_shutdown("End of file reached")
-                    rospy.sleep(1./playback_rate)
 
                 try:
                     cache = extract_sentences(cache + data, ubx_message_definitions, driver, frame_id)
 
-                    if not playback:
-                        rospy.sleep(1./driver_rate)
+                    rospy.sleep(1./driver_rate)
                 except ValueError as e:
                     rospy.logwarn(
                         "Value error, likely due to missing fields in the NMEA message. "
