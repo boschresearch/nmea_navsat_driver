@@ -31,7 +31,6 @@
     <param name="useRMC"                      value="$(arg useRMC)" />
     <param name="playback"                    value="$(arg playback)" />
     <param name="playback_path"               value="$(arg playback_path)" />
-    <param name="playback_rate"               value="$(arg playback_rate)" />
     <param name="chunk_size"                  value="$(arg chunk_size)" />
     <param name="driver_rate"                 value="$(arg driver_rate)" />
     <param name="heading_offset"              value="$(arg heading_offset)" />
