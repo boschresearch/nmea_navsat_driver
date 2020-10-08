@@ -45,11 +45,11 @@ from nmea_navsat_driver.msg import (NavSatInfo, NavSatTrimbleHeading,
                                     NavSatTrimbleMovingBase,
                                     NavSatUbloxGeoFence,
                                     NavSatUbloxPositionVelocityTime,
-                                    NavSatUbloxRelPos,
-                                    NavSatUbloxPubxPosition)
+                                    NavSatUbloxPubxPosition, NavSatUbloxRelPos)
 from sensor_msgs.msg import Imu, NavSatFix, NavSatStatus, TimeReference
-from tf.transformations import quaternion_from_euler
+from std_msgs.msg import String
 from tf import TransformListener
+from tf.transformations import quaternion_from_euler
 
 
 class RosNMEADriver(object):
@@ -69,6 +69,7 @@ class RosNMEADriver(object):
             - NavSatUbloxGeoFence publisher on the 'ublox_geofence' channel.
             - NavSatUbloxPositionVelocityTime publisher on the 'ublox_position_velocity_time' channel.
             - NavSatUbloxPubxPosition publisher on the 'ublox_pubx_position' channel.
+            - String publisher on the 'ublox_raw' channel.
             - NavSatTrimbleHeading publisher on the 'trimble_heading' channel.
             - Imu publisher on the 'trimble_moving_base_imu' channel.
             - NavSatTrimbleMovingBase publisher on the 'trimble_moving_base' channel.
@@ -153,6 +154,7 @@ class RosNMEADriver(object):
             self.ublox_geofence_pub = rospy.Publisher('ublox_geofence', NavSatUbloxGeoFence, queue_size=10)
             self.ublox_position_velocity_time_pub = rospy.Publisher('ublox_position_velocity_time', NavSatUbloxPositionVelocityTime, queue_size=10)
             self.ublox_pubx_position_pub = rospy.Publisher('ublox_pubx_position', NavSatUbloxPubxPosition, queue_size=10)
+            self.ublox_raw = rospy.Publisher('ublox_raw', String, queue_size=10)
 
         # Trimble messages
         if self.use_trimble_messages:
@@ -754,6 +756,12 @@ class RosNMEADriver(object):
             msg.mag_acc = data['magAcc'] / 1.e2 / 180.0 * math.pi
 
             self.ublox_position_velocity_time_pub.publish(msg)
+
+        elif self.use_ublox_messages and 'UBX-RAW' in parsed_sentence:
+            data = parsed_sentence['UBX-RAW']
+            msg = String()
+            msg.data = data['raw']
+            self.ublox_raw.publish(msg)
 
         else:
             return False

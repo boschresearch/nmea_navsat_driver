@@ -81,3 +81,24 @@
   - accLength
   - accHeading
   - flags
+323:
+  name: UBX-NAV-SIG
+  class: 1
+  id: 67
+  minlength: 8
+  maxlength: 1928
+  format: raw
+2609:
+  name: UBX-MON-SPAN
+  class: 10
+  id: 49
+  minlength: 274
+  maxlength: 548
+  format: raw
+2616:
+  name: UBX-MON-RF
+  class: 10
+  id: 56
+  minlength: 28
+  maxlength: 52
+  format: raw

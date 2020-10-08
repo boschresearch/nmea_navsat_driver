@@ -76,6 +76,10 @@ def parse_ubx_sentence(ubx_sentence, sentence_definitions):
     sentence_number = struct.unpack('>H', ubx_sentence[2:4])[0]
     sentence_definition = sentence_definitions[sentence_number]
 
+    # sentences that should not be interpreted
+    if sentence_definition['format'] == 'raw':
+        return {'UBX-RAW': {'name': sentence_definition['name'], 'raw': ubx_sentence}}
+
     values = struct.unpack(sentence_definition['format'], ubx_sentence[prefix:prefix + sentence_definition['minlength']])
     sentence = {sentence_definition['name']: dict(zip(sentence_definition['entries'], values))}
 
