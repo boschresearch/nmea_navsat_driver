@@ -297,7 +297,7 @@ class RosNMEADriver(object):
             current_fix.position_covariance_type = gps_qual[2]
 
             self.valid_fix = (fix_type > 0)
-            
+
             current_fix.status.service = NavSatStatus.SERVICE_GPS
 
             latitude = data['latitude']
@@ -559,7 +559,9 @@ class RosNMEADriver(object):
             msg.heading = data['relPosHeading'] * 0.00001 / 180.0 * math.pi
             if self.ccw_heading:
                 msg.heading = -msg.heading
-            msg.heading += self.heading_offset
+            # only add offset if heading is valid - invalid heading should always be 0.0
+            if 1 == int(data['flags'][23], 2):
+                msg.heading += self.heading_offset
             # wrap yaw angle to [-pi, pi)
             msg.heading = (msg.heading + math.pi) % (2 * math.pi) - math.pi
             msg.acc_n = data['accN'] * 0.0001
