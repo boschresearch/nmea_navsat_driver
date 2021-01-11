@@ -560,6 +560,7 @@ class RosNMEADriver(object):
             if self.ccw_heading:
                 msg.heading = -msg.heading
             # only add offset if heading is valid - invalid heading should always be 0.0
+            data['flags'] = format(data['flags'], '032b')
             if 1 == int(data['flags'][23], 2):
                 msg.heading += self.heading_offset
             # wrap yaw angle to [-pi, pi)
@@ -570,7 +571,6 @@ class RosNMEADriver(object):
             msg.acc_length = data['accLength'] * 0.0001
             msg.acc_heading = data['accHeading'] * 0.00001 / 180.0 * math.pi
 
-            data['flags'] = format(data['flags'], '032b')
             msg.rel_pos_heading_valid = int(data['flags'][23], 2)
             msg.ref_obs_miss = int(data['flags'][24], 2)
             msg.ref_pos_miss = int(data['flags'][25], 2)
