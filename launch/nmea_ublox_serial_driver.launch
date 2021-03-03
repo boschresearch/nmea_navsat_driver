@@ -6,9 +6,11 @@
   <arg name="use_GNSS_time"               default="False" />
   <arg name="time_ref_source"             default="gps" />
   <arg name="useRMC"                      default="False" />
+  <arg name="use_extended_nmea_messages"  default="True" />
 
   <!-- Logging -->
   <arg name="logging"                     default="False" />
+  <arg name="logging_path" />
 
   <!-- Processing parameters -->
   <arg name="chunk_size"                  default="1024" />
@@ -31,7 +33,9 @@
     <param name="use_GNSS_time"               value="$(arg use_GNSS_time)" />
     <param name="time_ref_source"             value="$(arg time_ref_source)" />
     <param name="useRMC"                      value="$(arg useRMC)" />
+    <param name="use_extended_nmea_messages"  value="$(arg use_extended_nmea_messages)" />
     <param name="logging"                     value="$(arg logging)" />
+    <param name="logging_path"                value="$(arg logging)" />
     <param name="chunk_size"                  value="$(arg chunk_size)" />
     <param name="driver_rate"                 value="$(arg driver_rate)" />
     <param name="heading_offset"              value="$(arg heading_offset)" />

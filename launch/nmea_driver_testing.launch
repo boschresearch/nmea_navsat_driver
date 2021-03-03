@@ -4,6 +4,7 @@
   <arg name="use_GNSS_time"               default="False" />
   <arg name="time_ref_source"             default="gps" />
   <arg name="useRMC"                      default="False" />
+  <arg name="use_extended_nmea_messages"  default="False" />
 
   <!-- Logging and playback -->
   <arg name="playback"                    default="True" />
@@ -20,7 +21,7 @@
   <arg name="heading_urdf_source_frame"   default="gnss_position_link" />
   <arg name="heading_urdf_target_frame"   default="gnss_vector_link" />
 
-  <!-- U-blox specific settings -->
+  <!-- Vendor specific settings -->
   <arg name="use_trimble_messages"        default="False" />
   <arg name="use_ublox_messages"          default="False" />
 
@@ -29,6 +30,7 @@
     <param name="use_GNSS_time"               value="$(arg use_GNSS_time)" />
     <param name="time_ref_source"             value="$(arg time_ref_source)" />
     <param name="useRMC"                      value="$(arg useRMC)" />
+    <param name="use_extended_nmea_messages"  value="$(arg use_extended_nmea_messages)" />
     <param name="playback"                    value="$(arg playback)" />
     <param name="playback_path"               value="$(arg playback_path)" />
     <param name="chunk_size"                  value="$(arg chunk_size)" />
