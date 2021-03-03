@@ -10,13 +10,15 @@ catkin_python_setup()
 
 add_message_files(
   FILES
+  NavSatGRS.msg
+  NavSatGST.msg
   NavSatInfo.msg
-  NavSatUbloxGeoFence.msg
-  NavSatUbloxPositionVelocityTime.msg
-  NavSatUbloxRelPos.msg
-  NavSatUbloxPubxPosition.msg
   NavSatTrimbleHeading.msg
   NavSatTrimbleMovingBase.msg
+  NavSatUbloxGeoFence.msg
+  NavSatUbloxPositionVelocityTime.msg
+  NavSatUbloxPubxPosition.msg
+  NavSatUbloxRelPos.msg
 )
 
 generate_messages(

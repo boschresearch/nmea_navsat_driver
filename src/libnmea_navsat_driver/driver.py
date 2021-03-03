@@ -41,7 +41,8 @@ import rospy
 from geometry_msgs.msg import QuaternionStamped, TwistStamped
 from libnmea_navsat_driver.checksum_utils import check_nmea_checksum
 from nav_msgs.msg import Odometry
-from nmea_navsat_driver.msg import (NavSatInfo, NavSatTrimbleHeading,
+from nmea_navsat_driver.msg import (NavSatGRS, NavSatGST, NavSatInfo,
+                                    NavSatTrimbleHeading,
                                     NavSatTrimbleMovingBase,
                                     NavSatUbloxGeoFence,
                                     NavSatUbloxPositionVelocityTime,
@@ -60,6 +61,8 @@ class RosNMEADriver(object):
 
         :ROS Publishers:
             - NavSatFix publisher on the 'fix' channel.
+            - NavSatGRS publisher on the 'grs' channel.
+            - NavSatGST publisher on the 'gst' channel.
             - TwistStamped publisher on the 'vel' channel.
             - QuaternionStamped publisher on the 'heading' channel.
             - TimeReference publisher on the 'time_reference' channel.
@@ -94,14 +97,20 @@ class RosNMEADriver(object):
         """
         self.fix_pub = rospy.Publisher('fix', NavSatFix, queue_size=10)
         self.vel_pub = rospy.Publisher('vel', TwistStamped, queue_size=10)
-        self.info_pub = rospy.Publisher('info', NavSatInfo, queue_size=10)
         self.heading_pub = rospy.Publisher('heading', QuaternionStamped, queue_size=10)
+
         self.use_GNSS_time = rospy.get_param('~use_GNSS_time', False)
+        self.use_extended_nmea_messages = rospy.get_param('~use_extended_nmea_messages', False)
         self.use_ublox_messages = rospy.get_param('~use_ublox_messages', False)
         self.use_trimble_messages = rospy.get_param('~use_trimble_messages', False)
         if not self.use_GNSS_time:
             self.time_ref_pub = rospy.Publisher(
                 'time_reference', TimeReference, queue_size=10)
+
+        if self.use_extended_nmea_messages:
+            self.grs_pub = rospy.Publisher('grs', NavSatGRS, queue_size=10)
+            self.gst_pub = rospy.Publisher('gst', NavSatGST, queue_size=10)
+            self.info_pub = rospy.Publisher('info', NavSatInfo, queue_size=10)
 
         # heading corrections, applied to the following messages
         # * PNTL,AVR
@@ -410,6 +419,30 @@ class RosNMEADriver(object):
                     math.cos(data['true_course'])
                 self.vel_pub.publish(current_vel)
 
+        elif 'GRS' in parsed_sentence:
+            data = parsed_sentence['GRS']
+            msg = NavSatGRS()
+            msg.header.stamp = current_time
+            msg.header.frame_id = frame_id
+
+            msg.utc_time = data['utc_time']
+            msg.mode = data['mode']
+            msg.residual_01 = data['residual_01']
+            msg.residual_02 = data['residual_02']
+            msg.residual_03 = data['residual_03']
+            msg.residual_04 = data['residual_04']
+            msg.residual_05 = data['residual_05']
+            msg.residual_06 = data['residual_06']
+            msg.residual_07 = data['residual_07']
+            msg.residual_08 = data['residual_08']
+            msg.residual_09 = data['residual_09']
+            msg.residual_10 = data['residual_10']
+            msg.residual_11 = data['residual_11']
+            # The following two attributes have been introduced with NMEA 4.11
+            msg.system_id = data['system_id']
+            msg.signal_id = data['signal_id']
+            self.grs_pub.publish(msg)
+
         elif 'GST' in parsed_sentence:
             data = parsed_sentence['GST']
 
@@ -418,6 +451,19 @@ class RosNMEADriver(object):
             self.lon_std_dev = data['lon_std_dev']
             self.lat_std_dev = data['lat_std_dev']
             self.alt_std_dev = data['alt_std_dev']
+
+            msg = NavSatGST()
+            msg.header.stamp = current_time
+            msg.header.frame_id = frame_id
+            msg.utc_time = data['utc_time']
+            msg.ranges_std_dev = data['ranges_std_dev']
+            msg.semi_major_ellipse_std_dev = data['semi_major_ellipse_std_dev']
+            msg.semi_minor_ellipse_std_dev = data['semi_minor_ellipse_std_dev']
+            msg.semi_major_orientation = data['semi_major_orientation']
+            msg.lat_std_dev = data['lat_std_dev']
+            msg.lon_std_dev = data['lon_std_dev']
+            msg.alt_std_dev = data['alt_std_dev']
+            self.gst_pub.publish(msg)
 
         elif 'HDT' in parsed_sentence:
             data = parsed_sentence['HDT']
