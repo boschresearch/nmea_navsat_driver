@@ -6,25 +6,25 @@ uint8 RTK_FLOAT=1
 uint8 RTK_FIX=2
 
 Header header
-# GPS time of week in ms
+# GPS time of week in s
 float32 tow
-# North component of relative position vector in cm
+# North component of relative position vector in m
 float32 n
-# East component of relative position vector in cm
+# East component of relative position vector in m
 float32 e
-# Down component of relative position vector in cm
+# Down component of relative position vector in m
 float32 d
-# Length of the relative position vector in cm
+# Length of the relative position vector in m
 float32 length
 # Heading of the relative position vector in rad
 float32 heading
-# Accuracy of relative position north component in mm
+# Accuracy of relative position north component in m
 float32 acc_n
-# Accuracy of relative position east component in mm
+# Accuracy of relative position east component in m
 float32 acc_e
-# Accuracy of relative position down component in mm
+# Accuracy of relative position down component in m
 float32 acc_d
-# Accuracy of length of the relative position vector in mm
+# Accuracy of length of the relative position vector in m
 float32 acc_length
 # Accuracy of heading of the relative position vector in rad
 float32 acc_heading
